@@ -1,19 +1,11 @@
 #include "oled_ssd1306.h"
 #include "oled_ssd1306_utils.h"
-#include "oled_ssd1306_spi_port.h"
-#include "oled_ssd1306_i2c_port.h"
+#include "oled_ssd1306_port.h"
 
 #include <stdio.h>
 
-// #define OLED_COMM_MODE_SPI
-
-#ifdef OLED_COMM_MODE_SPI
 #define X_WIDTH         128
 #define Y_WIDTH         64
-#else
-#define X_WIDTH         64
-#define Y_WIDTH         48
-#endif
 
 #define PAGE_NUM        Y_WIDTH / 8
 #define PAGE_BATE_NUM   X_WIDTH
@@ -22,11 +14,7 @@ unsigned char g_oled_gram[PAGE_BATE_NUM][PAGE_NUM];
 
 static void oled_ssd1306_write(unsigned char data, unsigned char mode)
 {
-#ifdef OLED_COMM_MODE_SPI
-    oled_ssd1306_spi_port_write_data(data, mode);
-#else
-    oled_ssd1306_i2c_port_write_data(data, mode);
-#endif
+    oled_ssd1306_port_write_spi_data(data, mode);
 }
 
 static void oled_ssd1306_draw_point(unsigned char x, unsigned char y, unsigned char mode)
@@ -229,13 +217,8 @@ void oled_ssd1306_refresh(void)
     unsigned char i, n;
     for (i = 0; i < PAGE_NUM; i++) {
         oled_ssd1306_write(0xb0+i, OLED_WRITE_CMD);
-#ifdef OLED_COMM_MODE_SPI
         oled_ssd1306_write(0x02, OLED_WRITE_CMD);
         oled_ssd1306_write(0x10, OLED_WRITE_CMD);
-#else
-        oled_ssd1306_write(0x00, OLED_WRITE_CMD);
-        oled_ssd1306_write(0x12, OLED_WRITE_CMD);
-#endif
         for (n = 0; n < X_WIDTH; n++) {
             oled_ssd1306_write(g_oled_gram[n][i], OLED_WRITE_DAT);
         }
@@ -244,8 +227,7 @@ void oled_ssd1306_refresh(void)
 
 void oled_ssd1306_init(void)
 {
-#ifdef OLED_COMM_MODE_SPI
-    oled_ssd1306_spi_port_init();
+    oled_ssd1306_port_init();
 
     oled_ssd1306_write(0xae,OLED_WRITE_CMD);
     oled_ssd1306_write(0x00,OLED_WRITE_CMD);
@@ -282,35 +264,5 @@ void oled_ssd1306_init(void)
     oled_ssd1306_write(0xa4,OLED_WRITE_CMD);
     oled_ssd1306_write(0xa6,OLED_WRITE_CMD);
     oled_ssd1306_write(0xaf,OLED_WRITE_CMD);
-    oled_ssd1306_fill(0x00);
-#else
-    oled_ssd1306_i2c_port_init();
-    oled_ssd1306_write(0xAE,OLED_WRITE_CMD);
-    oled_ssd1306_write(0x00,OLED_WRITE_CMD);
-    oled_ssd1306_write(0x12,OLED_WRITE_CMD);
-    oled_ssd1306_write(0x40,OLED_WRITE_CMD);
-    oled_ssd1306_write(0xB0,OLED_WRITE_CMD);
-    oled_ssd1306_write(0x81,OLED_WRITE_CMD);
-    oled_ssd1306_write(0xff,OLED_WRITE_CMD);
-    oled_ssd1306_write(0xA1,OLED_WRITE_CMD);
-    oled_ssd1306_write(0xA6,OLED_WRITE_CMD);
-    oled_ssd1306_write(0xA8,OLED_WRITE_CMD);
-    oled_ssd1306_write(0x2F,OLED_WRITE_CMD);
-    oled_ssd1306_write(0xC8,OLED_WRITE_CMD);
-	oled_ssd1306_write(0xD3,OLED_WRITE_CMD);
-	oled_ssd1306_write(0x00,OLED_WRITE_CMD);
-	oled_ssd1306_write(0xD5,OLED_WRITE_CMD);
-	oled_ssd1306_write(0x80,OLED_WRITE_CMD);
-    oled_ssd1306_write(0xD9,OLED_WRITE_CMD);
-	oled_ssd1306_write(0x21,OLED_WRITE_CMD);
-	oled_ssd1306_write(0xDA,OLED_WRITE_CMD);
-	oled_ssd1306_write(0x12,OLED_WRITE_CMD);
-	oled_ssd1306_write(0xdb,OLED_WRITE_CMD);
-	oled_ssd1306_write(0x40,OLED_WRITE_CMD);
-	oled_ssd1306_write(0x8d,OLED_WRITE_CMD);
-	oled_ssd1306_write(0x14,OLED_WRITE_CMD);
-	oled_ssd1306_fill(0x00);
-    oled_ssd1306_write(0xAF,OLED_WRITE_CMD);
-#endif
-    
+    oled_ssd1306_fill(0x00); 
 }

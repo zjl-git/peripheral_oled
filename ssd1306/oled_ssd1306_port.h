@@ -6,9 +6,9 @@ extern "C"
 {
 #endif
 
-void oled_ssd1306_spi_port_init(void);
+void oled_ssd1306_port_init(void);
 
-void oled_ssd1306_spi_port_write_data(unsigned char data, unsigned char mode);
+void oled_ssd1306_port_write_spi_data(unsigned char data, unsigned char mode);
 
 
 
